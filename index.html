@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Edu-Spark - Mental Maths</title>
+<style>
+  :root{--ink:#1d1b4b;--spark:#ffb800;--mint:#19b394;--coral:#ff5d73;--paper:#fff;--bg:#e9e7fb}
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:'Trebuchet MS','Segoe UI',Arial,sans-serif}
+  body{display:flex;justify-content:center;padding:16px}
+  .wrap{width:min(640px,100%)}
+  header{display:flex;align-items:baseline;gap:12px;margin:4px 0 14px}
+  .logo{font-size:34px;font-weight:900;letter-spacing:-1px}
+  .logo span{background:var(--spark);padding:0 8px;border:3px solid var(--ink);border-radius:8px;margin-right:2px}
+  .tag{font-size:18px;font-weight:700}
+  .card{background:var(--paper);border:3px solid var(--ink);border-radius:16px;padding:22px;box-shadow:7px 7px 0 var(--ink)}
+  h2{margin:0 0 6px;font-size:28px;line-height:1.2}
+  h3{margin:18px 0 8px;font-size:18px}
+  p{margin:6px 0;line-height:1.45}
+  button{font:inherit;font-weight:800;color:var(--ink);background:var(--paper);border:3px solid var(--ink);border-radius:12px;
+    padding:10px 18px;font-size:18px;cursor:pointer;box-shadow:3px 3px 0 var(--ink)}
+  button:active{transform:translate(3px,3px);box-shadow:none}
+  button:focus-visible,input:focus-visible{outline:4px solid var(--mint);outline-offset:2px}
+  button.on{background:var(--spark)}
+  button.main{background:var(--mint);color:#fff;font-size:21px;padding:12px 28px;margin-top:20px}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .chip{border:2px solid var(--ink);border-radius:10px;padding:5px 10px;font-weight:700;background:#f6f4ff}
+  .hud{display:flex;justify-content:space-between;font-weight:800;font-size:16px;gap:4px 14px;flex-wrap:wrap}
+  .track{height:14px;border:3px solid var(--ink);border-radius:8px;margin:12px 0;overflow:hidden;background:#fff}
+  #bar{height:100%;width:100%;background:var(--mint)}
+  #q{font-size:clamp(44px,12vw,84px);font-weight:900;text-align:center;margin:14px 0 6px;min-height:1.2em}
+  #q.txt{font-size:clamp(24px,6vw,38px);line-height:1.3}
+  #opn{text-align:center;font-weight:800;font-size:19px;min-height:28px;margin-bottom:10px;color:#5a58a0}
+  #inp{display:block;margin:0 auto;width:min(280px,100%);font:inherit;font-size:40px;font-weight:800;text-align:center;
+    border:3px solid var(--ink);border-radius:12px;padding:8px}
+  #inp::placeholder{font-size:16px;font-weight:600}
+  #tf{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  #tf button{font-size:22px;padding:14px 22px}
+  #fb{text-align:center;min-height:30px;margin-top:16px;font-size:20px;font-weight:800}
+  .stars{font-size:48px;text-align:center;color:var(--spark);-webkit-text-stroke:2px var(--ink);letter-spacing:6px}
+  .big{font-size:clamp(54px,14vw,90px);font-weight:900;text-align:center;line-height:1}
+  .rk{display:inline-block;background:var(--spark);border:3px solid var(--ink);border-radius:10px;padding:4px 14px;font-weight:900;font-size:22px}
+  ul{padding-left:22px;margin:6px 0}
+  li{margin:4px 0}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><div class="logo"><span>Edu</span>-Spark</div><div class="tag">Mental Maths</div></header>
+
+  <section class="card" id="menu">
+    <h2>5 Rounds, only brain (sirf dimaag)</h2>
+    <p>Solve without a calculator or paper (calculator aur kagaz ke bina jawab nikalo). Every round is different and has 5 questions (har round alag hai aur har round me 5 sawal hain).</p>
+    <h3>Choose level (Level chuno)</h3>
+    <div class="row" id="levels">
+      <button data-l="easy">Easy (Aasan)</button><button data-l="medium" class="on">Medium (Madhyam)</button><button data-l="hard">Hard (Mushkil)</button>
+    </div>
+    <h3>Symbols (Nishaan)</h3>
+    <div class="row" id="legend"></div>
+    <h3>Rounds</h3>
+    <ul id="rl"></ul>
+    <button class="main" id="start">Start (Shuru)</button>
+  </section>
+
+  <section class="card" id="intro" hidden>
+    <p id="rn" style="font-weight:800"></p>
+    <h2 id="rname"></h2>
+    <p id="rdesc" style="font-size:19px"></p>
+    <p id="rtime"></p>
+    <button class="main" id="rgo">Start Round (Shuru karo)</button>
+  </section>
+
+  <section class="card" id="play" hidden>
+    <div class="hud"><span id="hr"></span><span id="hq"></span><span>Streak <span id="st">0</span></span><span>Score <span id="sc">0</span></span></div>
+    <div class="track"><div id="bar"></div></div>
+    <div id="q"></div>
+    <div id="opn"></div>
+    <input id="inp" type="text" inputmode="numeric" autocomplete="off" aria-label="Answer (Jawab)" placeholder="Type answer and press Enter (Jawab likho aur Enter dabao)">
+    <div id="tf" hidden><button id="bt">True (Sach) [T]</button><button id="bf">False (Jhooth) [F]</button></div>
+    <div id="fb"></div>
+  </section>
+
+  <section class="card" id="rend" hidden>
+    <h2 id="rtitle"></h2>
+    <div class="stars" id="stars"></div>
+    <p id="rsum" style="text-align:center;font-size:18px"></p>
+    <div style="text-align:center"><button class="main" id="nxt"></button></div>
+  </section>
+
+  <section class="card" id="final" hidden>
+    <h2>Final result</h2>
+    <div class="big" id="fs"></div>
+    <p style="text-align:center"><span class="rk" id="rank"></span></p>
+    <p id="fsum" style="text-align:center"></p>
+    <p id="fstars" style="text-align:center;font-weight:800"></p>
+    <h3 id="mh">Try these again (Inhe dobara try karo)</h3>
+    <ul id="miss"></ul>
+    <div class="row" style="justify-content:center;margin-top:16px">
+      <button id="again" class="on">Play again (Dobara khelo)</button><button id="tomenu">Menu</button>
+    </div>
+  </section>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const rnd = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a, pick = a => a[rnd(0, a.length - 1)];
+const bi = (en, hi) => `${en} (${hi})`;                 // English first, Hindi in brackets
+const OPN = { '+': bi('Plus', 'jodo'), '−': bi('Minus', 'ghatao'), '×': bi('Multiply', 'guna'), '÷': bi('Divide', 'bhaag') };
+const LV = { easy: { n: 20, m: 6, k: 1.4, fl: 900, fc: 3, hi: 9 },
+             medium: { n: 100, m: 12, k: 1, fl: 700, fc: 3, hi: 20 },
+             hard: { n: 500, m: 20, k: .85, fl: 550, fc: 4, hi: 50 } };
+const PER_ROUND = 5;
+let level = 'medium', C = LV.medium, G = null;
+
+const ROUNDS = [
+  { name: 'Add and Subtract', hi: 'Jod aur Ghata', t: 12, kind: 'type',
+    desc: bi('Add or subtract. Work out the answer in your head and type it.', 'Jod ya ghata. Jawab dimaag me nikalo aur type karo.'),
+    gen() { let a = rnd(2, C.n), b = rnd(2, C.n);
+      if (rnd(0, 1)) return { text: `${a} + ${b}`, op: '+', ans: a + b };
+      if (a < b) [a, b] = [b, a];
+      return { text: `${a} − ${b}`, op: '−', ans: a - b }; } },
+  { name: 'Table Blitz', hi: 'Guna aur Bhaag', t: 10, kind: 'type',
+    desc: bi('Multiply and divide. The faster you answer, the more points you get.', 'Guna aur bhaag. Jitna tez jawab, utne zyada points.'),
+    gen() { if (rnd(0, 1)) { const a = rnd(2, C.m), b = rnd(2, C.m); return { text: `${a} × ${b}`, op: '×', ans: a * b }; }
+      const b = rnd(2, C.m), q = rnd(2, C.m); return { text: `${b * q} ÷ ${b}`, op: '÷', ans: q }; } },
+  { name: 'Fill the Blank', hi: 'Khali Jagah Bharo', t: 14, kind: 'type',
+    desc: bi('Find the number that goes in place of the ?.', '? ki jagah sahi number dhundo.'),
+    gen() { const t = rnd(0, 2);
+      if (t === 0) { const a = rnd(2, C.n), b = rnd(2, C.n); return { text: `${a} + ? = ${a + b}`, op: '+', ans: b }; }
+      if (t === 1) { const a = rnd(3, C.n), c = rnd(1, a - 1); return { text: `${a} − ? = ${c}`, op: '−', ans: a - c }; }
+      const a = rnd(2, C.m), b = rnd(2, C.m); return { text: `${a} × ? = ${a * b}`, op: '×', ans: b }; } },
+  { name: 'True or False', hi: 'Sach ya Jhooth', t: 8, kind: 'tf',
+    desc: bi('Is the equation right or wrong? Press T for True, F for False.', 'Equation sahi hai ya galat? T dabao = sach, F dabao = jhooth.'),
+    gen() { const op = pick(['+', '−', '×']); let a, b, r;
+      if (op === '×') { a = rnd(2, C.m); b = rnd(2, C.m); r = a * b; }
+      else { a = rnd(2, C.n); b = rnd(2, C.n); if (op === '−' && a < b) [a, b] = [b, a]; r = op === '+' ? a + b : a - b; }
+      const truth = rnd(0, 1) === 1; let shown = r;
+      if (!truth) { do { shown = r + pick([-1, 1, -2, 2, -10, 10]); } while (shown < 0); }
+      return { text: `${a} ${op} ${b} = ${shown}`, op, ans: truth, fix: `${a} ${op} ${b} = ${r}` }; } },
+  { name: 'Memory Flash', hi: 'Yaad Rakho', t: 15, kind: 'flash',
+    desc: bi('Numbers will flash one by one. Remember them and tell the total.', 'Numbers ek ek karke chamkenge. Yaad rakho aur unka total batao.'),
+    gen() { const nums = Array.from({ length: C.fc }, () => rnd(2, C.hi)); return { nums, op: '+', ans: nums.reduce((a, b) => a + b, 0) }; } }
+];
+
+// menu content built from the data above
+$('#legend').innerHTML = Object.keys(OPN).map(k => `<span class="chip">${k} ${OPN[k]}</span>`).join('');
+$('#rl').innerHTML = ROUNDS.map((R, i) => `<li>Round ${i + 1}: ${bi(R.name, R.hi)}</li>`).join('');
+
+function show(id) { ['menu', 'intro', 'play', 'rend', 'final'].forEach(s => $('#' + s).hidden = s !== id); }
+function setQ(t, small) { $('#q').textContent = t; $('#q').className = small ? 'txt' : ''; }
+const bestKey = () => 'edu-spark-best-' + level;
+const getBest = () => { try { return +localStorage.getItem(bestKey()) || 0; } catch (e) { return 0; } };
+const setBest = v => { try { localStorage.setItem(bestKey(), v); } catch (e) {} };
+
+$('#levels').onclick = e => { const b = e.target.closest('button'); if (!b) return;
+  level = b.dataset.l; C = LV[level]; [...$('#levels').children].forEach(x => x.classList.toggle('on', x === b)); };
+
+function start() {
+  G = { r: 0, q: 0, score: 0, streak: 0, right: 0, rs: 0, tok: 0, totalRight: 0, stars: [], miss: [], locked: true };
+  intro();
+}
+function intro() {
+  const R = ROUNDS[G.r], secs = Math.round(R.t * C.k);
+  $('#rn').textContent = `Round ${G.r + 1} / ${ROUNDS.length}`;
+  $('#rname').textContent = bi(R.name, R.hi); $('#rdesc').textContent = R.desc;
+  $('#rtime').textContent = bi(`${PER_ROUND} questions, ${secs} seconds each`, `${PER_ROUND} sawal, har sawal ke liye ${secs} second`);
+  show('intro');
+}
+function beginRound() { G.q = 0; G.right = 0; G.rs = 0; show('play'); nextQ(); }
+
+function nextQ() {
+  const R = ROUNDS[G.r];
+  G.cur = R.gen(); G.locked = false; G.tok++;
+  $('#hr').textContent = `Round ${G.r + 1}: ${bi(R.name, R.hi)}`;
+  $('#hq').textContent = bi('Question', 'Sawal') + ` ${G.q + 1}/${PER_ROUND}`;
+  $('#sc').textContent = G.score; $('#st').textContent = G.streak;
+  $('#fb').textContent = ''; $('#fb').style.color = '';
+  $('#opn').textContent = OPN[G.cur.op];
+  $('#bar').style.width = '100%'; $('#bar').style.background = 'var(--mint)';
+  const tf = R.kind === 'tf';
+  $('#tf').hidden = !tf; $('#inp').hidden = tf; $('#inp').value = '';
+  if (R.kind === 'flash') return flash(G.cur.nums);
+  setQ(G.cur.text, false);
+  if (!tf) $('#inp').focus();
+  startTimer();
+}
+function flash(nums) {
+  const tok = G.tok; let i = 0;
+  setQ(bi('Remember', 'Yaad rakho'), true); $('#inp').disabled = true;
+  const next = () => {
+    if (G.tok !== tok) return;
+    if (i >= nums.length) { setQ(bi('What is the total?', 'Total kitna hua?'), true); $('#inp').disabled = false; $('#inp').focus(); return startTimer(); }
+    setQ(nums[i++], false);
+    setTimeout(() => { if (G.tok !== tok) return; setQ('', false); setTimeout(next, 150); }, C.fl);
+  };
+  setTimeout(next, 900);
+}
+function startTimer() { G.dur = ROUNDS[G.r].t * 1000 * C.k; G.deadline = performance.now() + G.dur; tick(); }
+function tick() {
+  if (G.locked) return;
+  const left = G.deadline - performance.now();
+  $('#bar').style.width = Math.max(0, left / G.dur * 100) + '%';
+  $('#bar').style.background = left < G.dur * .3 ? 'var(--coral)' : 'var(--mint)';
+  if (left <= 0) answer(null); else G.raf = requestAnimationFrame(tick);
+}
+function answer(val) {
+  if (G.locked) return;
+  G.locked = true; cancelAnimationFrame(G.raf);
+  const R = ROUNDS[G.r], ok = val === G.cur.ans, left = Math.max(0, G.deadline - performance.now());
+  $('#inp').disabled = false;
+  if (ok) {
+    G.right++; G.totalRight++; G.streak++;
+    const pts = 10 + Math.min(G.streak, 5) * 2 + Math.floor(left / 1000);
+    G.score += pts; G.rs += pts;
+    $('#fb').style.color = 'var(--mint)';
+    $('#fb').textContent = G.streak >= 3
+      ? bi('Well done', 'Shabash') + `! ${G.streak} ` + bi('correct in a row', 'lagatar sahi') + ` +${pts}`
+      : bi('Correct', 'Sahi') + ` +${pts}`;
+  } else {
+    G.streak = 0;
+    const correct = R.kind === 'tf' ? G.cur.fix : G.cur.ans;
+    G.miss.push({ q: R.kind === 'flash' ? G.cur.nums.join(' + ') : G.cur.text, a: correct, r: G.r + 1 });
+    $('#fb').style.color = 'var(--coral)';
+    $('#fb').textContent = (val === null ? bi('Time up', 'Time khatam') : bi('Wrong', 'Galat')) + '. ' + bi('Correct answer', 'Sahi jawab') + `: ${correct}`;
+  }
+  $('#sc').textContent = G.score; $('#st').textContent = G.streak;
+  setTimeout(() => { G.q++; G.q >= PER_ROUND ? endRound() : nextQ(); }, ok ? 800 : 1800);
+}
+function submitTyped() {
+  const v = $('#inp').value.trim();
+  if (v === '' || isNaN(+v)) return;
+  answer(+v);
+}
+function endRound() {
+  const stars = G.right === PER_ROUND ? 3 : G.right >= 3 ? 2 : G.right >= 1 ? 1 : 0;
+  G.stars.push(stars);
+  $('#rtitle').textContent = bi(`Round ${G.r + 1} complete`, `Round ${G.r + 1} poora hua`);
+  $('#stars').textContent = '★'.repeat(stars) + '☆'.repeat(3 - stars);
+  $('#rsum').textContent = bi(`${G.right}/${PER_ROUND} correct, ${G.rs} points this round`, `${G.right}/${PER_ROUND} sahi, is round me ${G.rs} points mile`) + `. Total score: ${G.score}`;
+  $('#nxt').textContent = G.r === ROUNDS.length - 1 ? bi('See Final Result', 'Final result dekho') : bi('Next Round', 'Agla round');
+  show('rend');
+}
+function nextRound() { if (G.r === ROUNDS.length - 1) return finish(); G.r++; intro(); }
+function finish() {
+  const total = ROUNDS.length * PER_ROUND, acc = Math.round(G.totalRight / total * 100);
+  const best = getBest(), isBest = G.score > best; if (isBest) setBest(G.score);
+  $('#fs').textContent = G.score;
+  $('#rank').textContent = acc >= 90 ? 'Spark Master' : acc >= 70 ? 'Brain Blaze' : acc >= 50 ? 'Rising Spark' : 'Keep Sparking';
+  $('#fsum').textContent = bi(`${G.totalRight}/${total} correct`, `${G.totalRight}/${total} sahi`) + ` (${acc}%). ` +
+    (isBest ? bi('New best score!', 'Naya best score!') : `Best score: ${best}`);
+  $('#fstars').textContent = G.stars.map((s, i) => `R${i + 1} ` + '★'.repeat(s) + '☆'.repeat(3 - s)).join('   ');
+  $('#mh').hidden = $('#miss').hidden = G.miss.length === 0;
+  $('#miss').innerHTML = G.miss.map(m => `<li>Round ${m.r}: ${m.q} → <b>${m.a}</b></li>`).join('');
+  show('final');
+}
+
+$('#start').onclick = start; $('#again').onclick = start; $('#tomenu').onclick = () => show('menu');
+$('#rgo').onclick = beginRound; $('#nxt').onclick = nextRound;
+$('#inp').addEventListener('keydown', e => { if (e.key === 'Enter') submitTyped(); });
+$('#bt').onclick = () => answer(true); $('#bf').onclick = () => answer(false);
+addEventListener('keydown', e => {
+  if ($('#play').hidden || !G || G.locked || ROUNDS[G.r].kind !== 'tf') return;
+  const k = e.key.toLowerCase(); if (k === 't') answer(true); else if (k === 'f') answer(false);
+});
+</script>
+</body>
+</html>
